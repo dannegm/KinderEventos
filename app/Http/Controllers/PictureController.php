@@ -39,22 +39,39 @@ class PictureController extends Controller {
 
 				$picture->save ();
 
-				$data = [
-					'md5' => $md5,
-					'status' => 'success',
-					'path' => $fileUrl,
-					'filename' => $filename,
-					'public_path' => asset ("/pictures/{$filename}"),
-					'local_path' => $this->public_path () . "/pictures/{$filename}",
-					'email' => $request->input('email'),
-				];
-
 				Mail::send ('mails.photo', ['data' => $data], function ($m) use ($data) {
 					$m->from ('no-reply@ferrero.com.mx', 'Kinder Sorpresa');
 					$m->to ($data ['email']);
 					$m->subject('¡Mira tu foto Kinder!');
 					$m->attach($data ['local_path']);
 				});
+
+				if (!Mail::failures()) {
+					$picture->is_sended = 1;
+					$picture->save ();
+
+					$data = [
+						'md5' => $md5,
+						'status' => 'success',
+						'message' => 'Foto guardada y enviada con éxito',
+						'path' => $fileUrl,
+						'filename' => $filename,
+						'public_path' => asset ("/pictures/{$filename}"),
+						'local_path' => $this->public_path () . "/pictures/{$filename}",
+						'email' => $request->input('email'),
+					];
+				} else {
+					$data = [
+						'md5' => $md5,
+						'status' => 'nosend',
+						'message' => 'La foto fue guardada pero no se envió el correo',
+						'path' => $fileUrl,
+						'filename' => $filename,
+						'public_path' => asset ("/pictures/{$filename}"),
+						'local_path' => $this->public_path () . "/pictures/{$filename}",
+						'email' => $request->input('email'),
+					];
+				}
 			} else {
 				$fileUrl = asset ('pictures/' . $imagen[0]->filename);
 				$data = [
