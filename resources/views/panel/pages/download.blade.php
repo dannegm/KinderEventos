@@ -37,7 +37,7 @@
 			</div>
 			@endif
 
-			@if ($agent->isAndroidOS ())
+			@if ($agent->is ('Android'))
 			<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
 				<a href="/downloads/android/kinder.apk" class="btn btn-noborder btn-success btn-rounded btn-lg btn-block">
 					<i class="fa fa-android"></i> Para Android</a>
